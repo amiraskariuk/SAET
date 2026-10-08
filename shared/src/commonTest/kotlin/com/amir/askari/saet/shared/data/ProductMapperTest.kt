@@ -50,6 +50,19 @@ class ProductMapperTest {
     }
 
     @Test
+    fun `cleans the description html`() {
+        val dto = ProductDto(
+            id = 1,
+            title = "Leggings",
+            description = "<meta charset=\"utf-8\"><p><br>Soft</p>\n<p>&nbsp;</p>",
+        )
+
+        val product = assertNotNull(dto.toDomain())
+
+        assertEquals("<p>Soft</p>", product.descriptionHtml)
+    }
+
+    @Test
     fun `puts the featured image first then media ordered by position without duplicates`() {
         val dto = ProductDto(
             id = 1,
