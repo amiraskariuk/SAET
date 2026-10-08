@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "SAET"
 include(":app")
+include(":shared")
