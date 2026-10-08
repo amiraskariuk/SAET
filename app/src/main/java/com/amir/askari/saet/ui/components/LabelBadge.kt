@@ -9,6 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.amir.askari.saet.shared.domain.LabelStyle
+import com.amir.askari.saet.ui.theme.BadgeContent
+import com.amir.askari.saet.ui.theme.BadgeHighlight
+import com.amir.askari.saet.ui.theme.BadgeNeutral
+import com.amir.askari.saet.ui.theme.BadgeSustainable
+import com.amir.askari.saet.ui.theme.BadgeUrgent
 
 @Composable
 fun LabelBadge(
@@ -16,18 +21,17 @@ fun LabelBadge(
     style: LabelStyle,
     modifier: Modifier = Modifier,
 ) {
-    val colours = MaterialTheme.colorScheme
-    val (containerColour, contentColour) = when (style) {
-        LabelStyle.Urgent -> colours.errorContainer to colours.onErrorContainer
-        LabelStyle.Highlight -> colours.inverseSurface to colours.inverseOnSurface
-        LabelStyle.Sustainable -> colours.tertiaryContainer to colours.onTertiaryContainer
-        LabelStyle.Neutral -> colours.surfaceVariant to colours.onSurfaceVariant
+    val containerColour = when (style) {
+        LabelStyle.Urgent -> BadgeUrgent
+        LabelStyle.Highlight -> BadgeHighlight
+        LabelStyle.Sustainable -> BadgeSustainable
+        LabelStyle.Neutral -> BadgeNeutral
     }
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(4.dp),
         color = containerColour,
-        contentColor = contentColour,
+        contentColor = BadgeContent,
     ) {
         Text(
             text = text,
