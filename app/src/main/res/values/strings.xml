@@ -5,5 +5,12 @@
     <string name="product_list_empty">No products to show right now</string>
     <string name="try_again">Try again</string>
     <string name="sold_out">Sold out</string>
-    <string name="product_detail_placeholder">Product details coming soon</string>
+    <string name="back">Back</string>
+    <string name="product_detail_error">Couldn\'t load this product</string>
+    <string name="sizes">Sizes</string>
+    <string name="size_sold_out">%1$s, sold out</string>
+    <string name="description">Description</string>
+    <string name="detail_type">Type</string>
+    <string name="detail_fit">Fit</string>
+    <string name="detail_sku">SKU</string>
 </resources>
