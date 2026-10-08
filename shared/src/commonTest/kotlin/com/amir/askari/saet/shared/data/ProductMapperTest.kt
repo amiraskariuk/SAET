@@ -200,6 +200,23 @@ class ProductMapperTest {
     }
 
     @Test
+    fun `drops sizes without a name`() {
+        val dto = ProductDto(
+            id = 1,
+            title = "Leggings",
+            availableSizes = listOf(
+                SizeDto(size = null, inStock = true),
+                SizeDto(size = " ", inStock = true),
+                SizeDto(size = "m", inStock = true),
+            ),
+        )
+
+        val product = assertNotNull(dto.toDomain())
+
+        assertEquals(listOf("M"), product.sizes.map { it.name })
+    }
+
+    @Test
     fun `uses size availability when the product stock flag is missing`() {
         val dto = ProductDto(
             id = 1,
