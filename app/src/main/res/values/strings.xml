@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">SAET</string>
+    <string name="product_list_title">Products</string>
+    <string name="product_list_error">Couldn\'t load products</string>
+    <string name="product_list_empty">No products to show right now</string>
+    <string name="try_again">Try again</string>
+    <string name="sold_out">Sold out</string>
+    <string name="product_detail_placeholder">Product details coming soon</string>
 </resources>
