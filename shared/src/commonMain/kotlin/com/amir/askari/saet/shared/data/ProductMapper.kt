@@ -20,7 +20,7 @@ fun ProductDto.toDomain(): Product? {
         inStock = inStock ?: sizes.any { it.inStock },
         imageUrls = imageUrlsOf(this),
         sizes = sizes,
-        descriptionHtml = description.orEmpty(),
+        descriptionHtml = cleanDescriptionHtml(description.orEmpty()),
         type = type,
         fit = fit,
         sku = sku,
