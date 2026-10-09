@@ -4,6 +4,12 @@ Small Android app that loads a product feed and shows it in a grid, tap a produc
 detail screen. The networking and data stuff lives in a Kotlin Multiplatform module (so an iOS app
 could reuse it later) and the UI is Jetpack Compose.
 
+<p>
+  <img src="app/src/test/snapshots/images/com.amir.askari.saet.ui.list_ProductListScreenshotTest_contentLight.png" height="560" alt="Product list screen">
+  <img src="app/src/test/snapshots/images/com.amir.askari.saet.ui.detail_ProductDetailScreenshotTest_contentLight.png" height="560" alt="Product detail screen">
+</p>
+
+_These come from the Paparazzi snapshot tests. Snapshot tests have no network, so the product photos show the placeholder, which is also what the three broken-image products look like in the app._
 
 ## What it does
 
@@ -17,15 +23,18 @@ through) and the description. The description comes in as HTML with quite a bit 
 so I clean it up first and then render it as normal styled text.
 
 There's a loading state, an error state with a "Try again" button and an empty state. I've checked it
-in dark mode, with font size at 1.5x and in airplane mode
-
+in dark mode, with font size at 1.5x and in airplane mode.
 
 ## Running it
 
 You need Android Studio with JDK 25 and the Android 37 SDK. The project is on AGP 9.4.1, Gradle 9.6
 and Kotlin 2.2.10, min SDK is 26.
 
+Open the project in Android Studio and run the `app` configuration, or from the terminal:
 
+```
+./gradlew :app:installDebug
+```
 
 ## Tests
 
@@ -46,7 +55,6 @@ and Kotlin 2.2.10, min SDK is 26.
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
-
 Roughly what's covered:
 
 - Shared module: label parsing, price formatting, JSON to domain mapping, the HTML cleaner
@@ -64,15 +72,11 @@ I wrote the tests first following TDD. Each feature has a `test(...)` commit wit
 No mocking library, just hand-written fakes. `FakeProductRepository` is about twenty lines and honestly
 reads more like a description of the behaviour than mock setup does.
 
-
-
 ## How it's built
 
 Basically: Ktor fetches the JSON, it gets parsed into DTOs, a mapper turns them into domain
 `Product`s, the repository caches them and hands back a `Result`, and each ViewModel exposes a
 `StateFlow` of a sealed UI state that a stateless Compose screen draws.
-
-
 
 A few decisions I should probably explain.
 
@@ -83,10 +87,9 @@ No use case layer, there isn't any business logic beyond the mapping, a use case
 calls. Hilt is only in `:app`, the shared classes get their dependencies through constructors so an
 iOS app could just create them by hand.
 
-
 The repository returns `kotlin.Result` so failures are in the type and can't be quietly ignored. It
 rethrows `CancellationException` so leaving a screen actually stops the work. There's no detail
-endpoint so the detail screen just looks the product up in the list thats already cached, and a
+endpoint so the detail screen just looks the product up in the list that's already cached, and a
 `Mutex` stops both screens fetching at the same time.
 
 For the description I went with Compose's `AnnotatedString.fromHtml` instead of a WebView. It keeps
@@ -96,7 +99,6 @@ be unit tested.
 Badge colours are fixed rather than coming from the theme. I started with theme colours but the
 badges sit on product photos which are light in both themes, and in dark mode the "New" badge pretty
 much vanished. The fixed ones all have at least 6:1 contrast against the white text.
-
 
 ## Assumptions
 
@@ -110,7 +112,6 @@ much vanished. The fixed ones all have at least 6:1 contrast against the white t
   "Back in stock").
 
 - Only `http`/`https` image URLs are used, featured image first then the rest by position.
-
 
 ## What I'd do next
 
@@ -130,53 +131,47 @@ much vanished. The fixed ones all have at least 6:1 contrast against the white t
 - A proper colour scheme instead of the template purple, a typed error so it can actually say
   "you're offline", and analytics.
 
+## How I used AI
 
-  ## How I used AI                 
+I used AI as a pair programmer, and I want to be upfront about it.
+**The architecture, the decisions and the quality bar were mine; AI did a lot of the typing.**
 
- **Nothing went in that I hadn't read and understood, and I can walk through any file in the project.**                                                                                                                                                                              
-                                                                                                                                                                                                                 
-  I used AI as a pair programmer, and I want to be upfront about it.                                                                                                              
-  **The architecture, the decisions and the quality bar were mine; AI did a lot of the typing.**                                                                                                                 
-                                                                                                                                                                                                                 
-                                                                                                                                                                                                                 
-  ### Tools                                                                                                                                                                                                      
-                                                                                                                                                                                                                 
-  - Claude: first for planning and then Claude Code server.                                                                                                               
-                                                                                                                                                                                                                 
-                                                                                                                                                                                                                 
-  ### What I used it for                                                                                                                                                                                         
-                                                                                                                                                                                                                 
-  - Adding the project dependencies: the version catalogue, the KMP shared module, Hilt, Ktor, Coil,                                                                                                            
-    navigation and later Paparazzi, and checking which versions actually work together.                                                                                                                          
-                                                                                                                                                                                                                 
-  - Formatting the JSON side: the DTOs, the shared `Json` config and mapping the raw JSON into the                                                                                                               
-    domain model.                                                                                                                                                                                                
-                                                                                                                                                                                                                 
-  - Adding the domain and data layers in `:shared` (models, label parsing, price formatting, the HTML                                                                                                            
-    cleaner, the Ktor API and the cached repository).                                                                                                                                                            
-                                                                                                                                                                                                                 
-  - Adding the tests: unit tests, integration tests (the API and repository against Ktor's                                                                                                                       
-    `MockEngine`, and the Compose UI tests on a device) and the Paparazzi snapshot tests.                                                                                                                        
-                                                                                                                                                                                                                 
-  - Formatting this README.                     
+### Tools
 
+- Claude: first for planning and then Claude Code server.
 
-  ### My part: decisions and code                                                                                                                                                                                
-                                                                                                                                                                                                                 
-  - **I chose the architecture.** It suggested a plain Android-only app with Retrofit. I went with a KMP                                                                                                         
-    shared data layer instead, which meant switching to Ktor, and kept the UI and ViewModels native.                                                                                                             
-                                                                                                                                                                                                                 
-  - **I set the way of working: strict TDD, one milestone at a time.** Every milestone had to have                                                                                                               
-    failing tests first, failing for the right reason, before any implementation.                                                                                                                                
-                                                                                                                                                                                                                 
-  - **I reviewed every step before committing it myself.** Nothing went in that I hadn't read and                                                                                                                
-    understood, and I can walk through any file in the project.                                                                                                                                                  
-                                                                                                                                                                                                                 
-  - **I made the calls when things broke.** When the newer Ktor and serialization versions broke the iOS                                                                                                         
-    targets I chose to pin older versions rather than bump Kotlin.                                                                                                                                               
-                                                                                                                                                                                                                 
-  - **I kept the scope tight on purpose.** The image gallery and pull-to-refresh went into "next steps"                                                                                                          
-    so the time went into clean, tested code instead.                                                                                                                                                            
-                                                                                                                                                                                                                 
-  - **Snapshot tests and the commit structure were my call** at the end, split so every commit builds                                                                                                            
-    and passes on its own.                  
+### What I used it for
+
+- Adding the project dependencies: the version catalogue, the KMP shared module, Hilt, Ktor, Coil,
+  navigation and later Paparazzi, and checking which versions actually work together.
+
+- Formatting the JSON side: the DTOs, the shared `Json` config and mapping the raw JSON into the
+  domain model.
+
+- Adding the domain and data layers in `:shared` (models, label parsing, price formatting, the HTML
+  cleaner, the Ktor API and the cached repository).
+
+- Adding the tests: unit tests, integration tests (the API and repository against Ktor's
+  `MockEngine`, and the Compose UI tests on a device) and the Paparazzi snapshot tests.
+
+- Formatting this README.
+
+### My part: decisions and code
+
+- **I chose the architecture.** It suggested a plain Android-only app with Retrofit. I went with a KMP
+  shared data layer instead, which meant switching to Ktor, and kept the UI and ViewModels native.
+
+- **I set the way of working: strict TDD, one milestone at a time.** Every milestone had to have
+  failing tests first, failing for the right reason, before any implementation.
+
+- **I reviewed every step before committing it myself.** Nothing went in that I hadn't read and
+  understood, and I can walk through any file in the project.
+
+- **I made the calls when things broke.** When the newer Ktor and serialization versions broke the iOS
+  targets I chose to pin older versions rather than bump Kotlin.
+
+- **I kept the scope tight on purpose.** The image gallery and pull-to-refresh went into "next steps"
+  so the time went into clean, tested code instead.
+
+- **Snapshot tests and the commit structure were my call** at the end, split so every commit builds
+  and passes on its own.
