@@ -100,6 +100,12 @@ Badge colours are fixed rather than coming from the theme. I started with theme 
 badges sit on product photos which are light in both themes, and in dark mode the "New" badge pretty
 much vanished. The fixed ones all have at least 6:1 contrast against the white text.
 
+Products whose images fail still stay in the list. A failed image is a display problem, not a data
+problem: the product is still valid and you can still buy it, so the card keeps its place and shows a
+placeholder, which also stops the grid jumping around when an image fails. If the business didn't
+want products without images listed, I'd filter them out in the search index rather than in the app,
+so iOS, Android and web all behave the same.
+
 ## Assumptions
 
 - Prices are whole pounds. The feed only gives a number so `65` shows as £65 and `1000` as £1,000.
@@ -113,6 +119,22 @@ much vanished. The fixed ones all have at least 6:1 contrast against the white t
 
 - Only `http`/`https` image URLs are used, featured image first then the rest by position.
 
+## Known rough edges
+
+Things I spotted on my own review that I'd fix next:
+
+- An out-of-stock product can show "Going fast" and "Sold out" at the same time (KK Fit 7/8 Leggings
+  in Earth Orange does). Urgency labels should probably be hidden once something's sold out.
+
+- `ProductDetailViewModel` reads the id from `SavedStateHandle` with the key `"productId"` instead
+  of going through the type-safe route, so renaming the route property would only break at runtime.
+
+- `testProduct()` is duplicated in `test` and `androidTest`. A shared test-fixtures module would
+  remove that.
+
+- The placeholder is just an icon, so an image that's still loading and one that failed look the
+  same. Showing "Image unavailable" on error would make that clearer.
+
 ## What I'd do next
 
 - iOS app in SwiftUI on top of `:shared`, it already compiles for iOS.
@@ -123,7 +145,7 @@ much vanished. The fixed ones all have at least 6:1 contrast against the white t
 
 - Offline cache with SQLDelight or Room KMP so the last list is there without a connection.
 
-- CI (GitHub Actions or Bitrise) running all the tests above including snapshot verification
+- CI (GitHub Actions or Bitrise) running all the tests above including snapshot verification.
 
 - Feature modules once there's more than one feature. Maybe shared ViewModels via the KMP lifecycle
   libs if the iOS app should share presentation logic too.
@@ -134,11 +156,11 @@ much vanished. The fixed ones all have at least 6:1 contrast against the white t
 ## How I used AI
 
 I used AI as a pair programmer, and I want to be upfront about it.
-**The architecture, the decisions and the quality bar were mine; AI did a lot of the typing.**
+**The architecture, the decisions and the quality bar were mine; AI wrote most of the code.**
 
 ### Tools
 
-- Claude: first for planning and then Claude Code server.
+- Claude: first for planning, then Claude Code for the implementation.
 
 ### What I used it for
 
@@ -151,12 +173,14 @@ I used AI as a pair programmer, and I want to be upfront about it.
 - Adding the domain and data layers in `:shared` (models, label parsing, price formatting, the HTML
   cleaner, the Ktor API and the cached repository).
 
+- Building the Android app: the Hilt wiring, the ViewModels, the Compose screens and navigation.
+
 - Adding the tests: unit tests, integration tests (the API and repository against Ktor's
   `MockEngine`, and the Compose UI tests on a device) and the Paparazzi snapshot tests.
 
-- Formatting this README.
+- Drafting this README, which I then edited.
 
-### My part: decisions and code
+### My part
 
 - **I chose the architecture.** It suggested a plain Android-only app with Retrofit. I went with a KMP
   shared data layer instead, which meant switching to Ktor, and kept the UI and ViewModels native.
